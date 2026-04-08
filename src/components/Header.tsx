@@ -1,72 +1,101 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Scissors } from 'lucide-react';
+
+const navItems = [
+  { label: 'Home', id: 'home' },
+  { label: 'Services', id: 'services' },
+  { label: 'About', id: 'about' },
+  { label: 'Reviews', id: 'testimonials' },
+];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMenuOpen(false);
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setIsMenuOpen(false);
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <nav className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Scissors className="w-8 h-8 text-amber-600" />
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">AJ Unisex & Family Salon</h1>
-              <p className="text-xs text-gray-600">Style. Beauty. Confidence.</p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollToSection('home')} className="text-gray-700 hover:text-amber-600 transition">
-              Home
-            </button>
-            <button onClick={() => scrollToSection('services')} className="text-gray-700 hover:text-amber-600 transition">
-              Services
-            </button>
-            <button onClick={() => scrollToSection('about')} className="text-gray-700 hover:text-amber-600 transition">
-              About
-            </button>
-            <button onClick={() => scrollToSection('testimonials')} className="text-gray-700 hover:text-amber-600 transition">
-              Reviews
-            </button>
-            <button onClick={() => scrollToSection('contact')} className="bg-amber-600 text-white px-6 py-2 rounded-full hover:bg-amber-700 transition">
-              Contact Us
-            </button>
-          </div>
-
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-card border-b border-slate-100'
+          : 'bg-white/80 backdrop-blur-sm'
+      }`}
+    >
+      <nav className="container mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between h-14 md:h-16">
+          {/* Logo */}
           <button
-            className="md:hidden text-gray-700"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => scrollToSection('home')}
+            className="flex items-center gap-2 focus:outline-none group"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-gold group-hover:scale-105 transition-transform">
+              <Scissors className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-left">
+              <div className="text-sm font-bold text-navy leading-tight tracking-tight">AJ Salon</div>
+              <div className="text-[10px] text-amber-500 font-semibold tracking-widest uppercase leading-none">Style · Beauty · Confidence</div>
+            </div>
+          </button>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-all duration-150"
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="ml-3 btn-gold text-sm"
+            >
+              Book Now
+            </button>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
+        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-3">
-            <button onClick={() => scrollToSection('home')} className="block w-full text-left py-2 text-gray-700 hover:text-amber-600">
-              Home
-            </button>
-            <button onClick={() => scrollToSection('services')} className="block w-full text-left py-2 text-gray-700 hover:text-amber-600">
-              Services
-            </button>
-            <button onClick={() => scrollToSection('about')} className="block w-full text-left py-2 text-gray-700 hover:text-amber-600">
-              About
-            </button>
-            <button onClick={() => scrollToSection('testimonials')} className="block w-full text-left py-2 text-gray-700 hover:text-amber-600">
-              Reviews
-            </button>
-            <button onClick={() => scrollToSection('contact')} className="block w-full text-center bg-amber-600 text-white px-6 py-2 rounded-full hover:bg-amber-700">
-              Contact Us
-            </button>
+          <div className="md:hidden border-t border-slate-100 py-3 space-y-1 bg-white">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="block w-full text-left px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition"
+              >
+                {item.label}
+              </button>
+            ))}
+            <div className="px-4 pt-2">
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="btn-gold w-full text-center"
+              >
+                Book Now
+              </button>
+            </div>
           </div>
         )}
       </nav>
